@@ -7,6 +7,7 @@ from options import DRIVER_NAME, SERVER_NAME, DATABASE_NAME
 connection_string = f"""
     DRIVER={{{DRIVER_NAME}}};
     SERVER={SERVER_NAME};
+    DATABASE={DATABASE_NAME};
     Trusted_Connection=yes;
 """
 
@@ -49,13 +50,11 @@ try:
     cursor.execute(drop_table_query)
     conn.commit()
 
-    drop_table_query = f'DROP TABLE osoba;'
-    cursor.execute(drop_table_query)
-    conn.commit()
 
 except odbc.Error as e:
     print(f"Błąd połączenia: {e}")
 
 finally:
     # Zawsze zamykaj połączenie, gdy skończysz pracę
-    conn.close()
+    if conn:
+        conn.close()
