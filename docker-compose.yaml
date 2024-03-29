@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+
+  cassandra:
+    image: cassandra
+    container_name: cassandra_ztbd
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+
+  mongodb:
+    image: mongo
+    container_name: mongodb_ztbd
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=rootuser
+      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express_ztbd
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+volumes:
+  data: {}
+
+networks:
+  default:
+    name: db_network_ztbd
+  cassandra_network:
+    driver: bridge
