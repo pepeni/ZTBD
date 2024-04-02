@@ -1,0 +1,26 @@
+from enum import Enum
+
+
+class CrimeColumns(Enum):
+    ID = 'id'
+    DATE = 'Date'
+    AREA = 'Area'
+    AREA_NAME = 'Area name'
+    CRIME_CODE = 'Crime code'
+    CRIME_CODE_DESC = 'Crime code desc'
+    VICTIM_AGE = 'Victim age'
+    VICTIM_SEX = 'Victim sex'
+    VICTIM_DESCENT = 'Victim descent'
+    PREMISE_CODE = 'Premise code'
+    PREMISE_DESC = 'Premise desc'
+    WEAPON_USED_CODE = 'Weapon used code'
+    WEAPON_USED_DESC = 'Weapon used desc'
+    STATUS = 'Status'
+    STATUS_DESC = 'Status Desc'
+    CRIME_CODE_1 = 'Crime code 1'
+    CRIME_CODE_2 = 'Crime code 2'
+    CRIME_CODE_3 = 'Crime code 3'
+    CRIME_CODE_4 = 'Crime code 4'
+    LOCATION = 'Location'
+    LATITUDE = 'Latitude'
+    LONGITUDE = 'Longitude'
