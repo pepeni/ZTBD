@@ -20,8 +20,8 @@ def msSqlInit():
 
         # Sprawdzam, czy istnieją tabele
 
-        list_of_table_name = {'Area': area_table, 'Crime': crime_table, 'Victim': victim_table, 'Permis': permis_table, 'Weapon': weapon_table, 'Status': status_table, 'CrimeRegister': crime_register_table}
-        for i in list_of_table_name.keys():
+        list_of_tables = {'Area': area_table, 'Crime': crime_table, 'Victim': victim_table, 'Permis': permis_table, 'Weapon': weapon_table, 'Status': status_table, 'CrimeRegister': crime_register_table}
+        for i in list_of_tables.keys():
             cursor.execute("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?", (i,))
 
             # Jeśli tabela istnieje
@@ -31,7 +31,7 @@ def msSqlInit():
             # Jeśli tabela nie istnieje, dodaje ją
             else:
                 print("Dodaję tabelę", i)
-                cursor.execute(list_of_table_name[i])
+                cursor.execute(list_of_tables[i])
                 # TODO Dodać rekordy
                 conn.commit()
 
