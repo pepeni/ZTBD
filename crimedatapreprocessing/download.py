@@ -1,7 +1,7 @@
 import requests
 import os.path
+from options import CRIME_DATA_FILENAME
 
-CRIME_DATA_FILENAME = "crime_data.csv"
 CRIME_DATA_URL = "https://data.lacity.org/api/views/2nrs-mtv8/rows.csv?accessType=DOWNLOAD"
 
 
