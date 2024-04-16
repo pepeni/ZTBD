@@ -1,7 +1,9 @@
+from typing import Tuple
+
 import pandas as pd
 
-from crime_columns import CrimeColumns
-import download
+from crimedatapreprocessing.crime_columns import CrimeColumns
+from crimedatapreprocessing import download
 
 
 def drop_unnecessary_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -69,16 +71,26 @@ def extract_victim_data(df: pd.DataFrame) -> pd.DataFrame:
     return df[VICTIM_COLUMNS]
 
 
-download.download_crime_data()
+def clean_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    download.download_crime_data()
 
-df = pd.read_csv(download.CRIME_DATA_FILENAME)
-df = drop_unnecessary_columns(df)
-df = rename_columns(df)
+    df = pd.read_csv(download.CRIME_DATA_FILENAME)
+    df = drop_unnecessary_columns(df)
+    df = rename_columns(df)
 
-crime_code_df = extract_crime_code_data(df)
-area_df = extract_area_data(df)
-premise_df = extract_premise_data(df)
-weapon_df = extract_weapon_data(df)
+    return (
+        extract_crime_code_data(df),
+        extract_area_data(df),
+        extract_premise_data(df),
+        extract_weapon_data(df),
+        extract_status_data(df),
+        extract_victim_data(df)
+    )
 
-status_df = extract_status_data(df)
-victim_df = extract_victim_data(df)
+
+def raw_data() -> pd.DataFrame:
+    download.download_crime_data()
+    df = pd.read_csv(download.CRIME_DATA_FILENAME)
+    df = drop_unnecessary_columns(df)
+    df = rename_columns(df)
+    return df

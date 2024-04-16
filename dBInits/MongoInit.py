@@ -1,25 +1,23 @@
 import pymongo
 from pymongo.errors import PyMongoError
-from options import MONGO_HOST, MONGO_PORT, MONGO_PASS, MONGO_USERNAME, MONGO_AUTH_DB
 
-def mongoInit():
-    try:
-        client = pymongo.MongoClient(MONGO_HOST, MONGO_PORT,
-                                     username=MONGO_USERNAME,
-                                     password=MONGO_PASS,
-                                     authSource=MONGO_AUTH_DB)
+from dBInits.DbInit import DbInit
+from dBInits.options import MONGO_HOST, MONGO_PORT, MONGO_PASS, MONGO_USERNAME, MONGO_AUTH_DB
 
-        db = client['ZTBD']
-        collection = db['CrimeRegister']
 
-        #TODO wprowadzić dane, jeśli ich nie ma
+class MongoInit(DbInit):
+    COLLECTION_NAME = 'Crimes'
 
-    except PyMongoError as e:
-        print(f"Błąd: {e}")
+    def insert_data(self):
+        try:
+            client = pymongo.MongoClient(MONGO_HOST, MONGO_PORT,
+                                         username=MONGO_USERNAME,
+                                         password=MONGO_PASS,
+                                         authSource=MONGO_AUTH_DB)
 
-    finally:
-        if client:
-            client.close()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            collection.insert_many(self.all_data.to_dict(orient='records'))
 
-if __name__ == "__main__":
-    mongoInit()
+        except PyMongoError as e:
+            print(f"Error: {e}")
