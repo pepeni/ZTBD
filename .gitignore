@@ -1,4 +1,5 @@
 options.py
 crime_data.csv
 .idea
+.env
 __pycache__
