@@ -1,6 +1,7 @@
 ### front
-nodejs.org
-npm i -g @angular/cli
+`nodejs.org -> install node`
+
+`npm i -g @angular/cli`
 
 ### front start 
 `ng serve`
