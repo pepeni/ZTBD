@@ -1,20 +1,25 @@
 import pyodbc as odbc
-from options import DRIVER_NAME, SERVER_NAME, DATABASE_NAME
 
 from backend.TableScripts.msSqlTables import area_table, crime_table, victim_table, permis_table, weapon_table, \
     status_table, crime_register_table
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
 from backend.db.DbHandler import DbHandler
-
+from dotenv import load_dotenv
+import os
 
 class MsSqlHandler(DbHandler):
     def __init__(self, crime_data_processor: CrimeDataProcessor):
         super().__init__(crime_data_processor)
         self.init_database()
 
+
     def init_database(self):
         # uid=<username>;
         # pwd=<password>;
+        load_dotenv()
+        DRIVER_NAME = os.getenv("DRIVER_NAME")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        DATABASE_NAME = os.getenv("DATABASE_NAME")
         connection_string = f"""
             DRIVER={{{DRIVER_NAME}}};
             SERVER={SERVER_NAME};

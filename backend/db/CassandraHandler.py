@@ -1,5 +1,4 @@
 from cassandra.cluster import Cluster
-from options import CASSANDRA_HOST, CASSANDRA_PORT
 
 from backend.TableScripts.cassandraTables import crimeRegister
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
