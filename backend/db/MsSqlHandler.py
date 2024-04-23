@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 import numpy as np
 import pandas as pd
+from itertools import count as iter_count
 
 class MsSqlHandler(DbHandler):
     def __init__(self, crime_data_processor: CrimeDataProcessor):
@@ -66,9 +67,6 @@ class MsSqlHandler(DbHandler):
             if conn:
                 conn.close()
 
-    def insert(self, count: int):
-        pass
-
     def init_insert(self):
         load_dotenv()
         DRIVER_NAME = os.getenv("DRIVER_NAME")
@@ -126,4 +124,45 @@ class MsSqlHandler(DbHandler):
 
         except pyodbc.Error as e:
             print(f"Wystąpił błąd podczas dodawania danych do tabeli: {e}")
+
+    def insert(self, count: int):
+        load_dotenv()
+        DRIVER_NAME = os.getenv("DRIVER_NAME")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        DATABASE_NAME = os.getenv("DATABASE_NAME")
+        connection_string = f"""
+                            DRIVER={{{DRIVER_NAME}}};
+                            SERVER={SERVER_NAME};
+                            DATABASE={DATABASE_NAME};
+                            Trusted_Connection=yes;
+                        """
+
+        try:
+            conn = odbc.connect(connection_string)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT MAX(ID) FROM CrimeRegister")
+            max_id = cursor.fetchone()[0]
+
+            if max_id is None:
+                max_id = 0
+
+            new_ids = list(range(max_id + 1, max_id + count + 1))
+
+            df = self.crime_register_data.head(count).copy()
+            df['id'] = new_ids
+
+            print(df.head(count))
+            # Wstaw dane do tabeli CrimeRegister
+            self.insert_data(df, insert_crime_register_table, cursor, conn)
+
+            print("Dodano dane do wszystkich tabel.")
+
+        except pyodbc.Error as e:
+            print(f"Wystąpił błąd: {e}")
+
+        finally:
+            if conn:
+                conn.close()
+
 
