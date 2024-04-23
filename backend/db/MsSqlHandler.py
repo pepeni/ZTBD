@@ -165,4 +165,43 @@ class MsSqlHandler(DbHandler):
             if conn:
                 conn.close()
 
+    def remove(self, count: int):
+        load_dotenv()
+        DRIVER_NAME = os.getenv("DRIVER_NAME")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        DATABASE_NAME = os.getenv("DATABASE_NAME")
+        connection_string = f"""
+                                    DRIVER={{{DRIVER_NAME}}};
+                                    SERVER={SERVER_NAME};
+                                    DATABASE={DATABASE_NAME};
+                                    Trusted_Connection=yes;
+                                """
+
+        try:
+            conn = odbc.connect(connection_string)
+            cursor = conn.cursor()
+
+            query = """
+                    DELETE FROM CrimeRegister
+                    WHERE ID IN (
+                        SELECT TOP {} ID
+                        FROM CrimeRegister
+                        ORDER BY ID DESC
+                    )
+                    """.format(count)
+
+            cursor.execute(query)
+            conn.commit()
+
+            print(f"Usunięto {count} wierszy o największym ID.")
+
+        except pyodbc.Error as e:
+            print(f"Wystąpił błąd: {e}")
+
+        except pyodbc.Error as e:
+            print(f"Wystąpił błąd: {e}")
+
+        finally:
+            if conn:
+                conn.close()
 
