@@ -1,15 +1,26 @@
+import pyodbc
 import pyodbc as odbc
 
-from backend.TableScripts.msSqlTables import area_table, crime_table, victim_table, permis_table, weapon_table, \
-    status_table, crime_register_table
+from backend.TableScripts.msSqlTables import *
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
 from backend.db.DbHandler import DbHandler
 from dotenv import load_dotenv
 import os
+import numpy as np
+import pandas as pd
 
 class MsSqlHandler(DbHandler):
     def __init__(self, crime_data_processor: CrimeDataProcessor):
         super().__init__(crime_data_processor)
+        temporary_data = self.all_data
+        temporary_data['Victim ID'] = range(1, len(temporary_data) + 1)
+        temporary_data.drop(columns=['Victim age'], inplace=True)
+        self.victim_data = self.victim_data.copy()
+        self.victim_data.insert(0, 'Victim ID', list(range(1, len(self.all_data) + 1)))
+        self.crime_register_data = temporary_data[
+            ['id', 'Area', 'Crime code', 'Victim ID', 'Premise code', 'Weapon used code', 'Status', 'Date', 'Location',
+             'Latitude', 'Longitude']]
+
         self.init_database()
 
 
@@ -47,7 +58,6 @@ class MsSqlHandler(DbHandler):
                 else:
                     print("Dodaję tabelę", i)
                     cursor.execute(list_of_tables[i])
-                    # TODO Dodać rekordy
                     conn.commit()
         except odbc.Error as e:
             print(f"Błąd: {e}")
@@ -58,3 +68,62 @@ class MsSqlHandler(DbHandler):
 
     def insert(self, count: int):
         pass
+
+    def init_insert(self):
+        load_dotenv()
+        DRIVER_NAME = os.getenv("DRIVER_NAME")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        DATABASE_NAME = os.getenv("DATABASE_NAME")
+        connection_string = f"""
+                    DRIVER={{{DRIVER_NAME}}};
+                    SERVER={SERVER_NAME};
+                    DATABASE={DATABASE_NAME};
+                    Trusted_Connection=yes;
+                """
+
+        try:
+            conn = odbc.connect(connection_string)
+            cursor = conn.cursor()
+
+            # Wstaw dane do tabeli Area
+            self.insert_data(self.area_data, insert_area_table, cursor, conn)
+
+            # Wstaw dane do tabeli Crime
+            self.insert_data(self.crime_code_data, insert_crime_table, cursor, conn)
+
+            # Wstaw dane do tabeli Victim
+            self.insert_data(self.victim_data, insert_victim_table, cursor, conn)
+
+            # Wstaw dane do tabeli Permis
+            self.insert_data(self.premise_data, insert_permis_table, cursor, conn)
+
+            # Wstaw dane do tabeli Weapon
+            self.insert_data(self.weapon_data, insert_weapon_table, cursor, conn)
+
+            # Wstaw dane do tabeli Status
+            self.insert_data(self.status_data, insert_status_table, cursor, conn)
+
+            # Wstaw dane do tabeli CrimeRegister
+            self.insert_data(self.crime_register_data, insert_crime_register_table, cursor, conn)
+
+            print("Dodano dane do wszystkich tabel.")
+
+        except pyodbc.Error as e:
+            print(f"Wystąpił błąd: {e}")
+
+    def insert_data(self, df, insert_query, cursor, conn):
+
+        try:
+            # Wstaw dane do tabeli
+            df = df.dropna(subset=df.columns[0])
+            df = df.replace(np.nan, None)
+
+            for row in df.itertuples(index=False):
+                cursor.execute(insert_query, row)
+            conn.commit()
+
+            print(f"Dodano dane do tabeli.")
+
+        except pyodbc.Error as e:
+            print(f"Wystąpił błąd podczas dodawania danych do tabeli: {e}")
+

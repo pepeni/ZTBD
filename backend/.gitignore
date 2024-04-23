@@ -1,5 +1,7 @@
 options.py
 crime_data.csv
-../.idea/
+.idea
 .env
 __pycache__
+db/crimedata.csv
+db/Test.py
