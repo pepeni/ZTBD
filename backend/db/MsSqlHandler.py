@@ -198,6 +198,44 @@ class MsSqlHandler(DbHandler):
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
+        finally:
+            if conn:
+                conn.close()
+
+    def update(self, count: int):
+        load_dotenv()
+        DRIVER_NAME = os.getenv("DRIVER_NAME")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        DATABASE_NAME = os.getenv("DATABASE_NAME")
+        connection_string = f"""
+                                            DRIVER={{{DRIVER_NAME}}};
+                                            SERVER={SERVER_NAME};
+                                            DATABASE={DATABASE_NAME};
+                                            Trusted_Connection=yes;
+                                        """
+
+        try:
+            conn = odbc.connect(connection_string)
+            cursor = conn.cursor()
+
+            query = """
+                UPDATE CrimeRegister 
+                SET LON = ?, AREA_ID = ?
+                WHERE ID IN (
+                    SELECT TOP(?) ID 
+                    FROM CrimeRegister 
+                    ORDER BY ID DESC
+                )
+            """
+
+            lon_value = 12.555
+            area_value = 1
+
+            cursor.execute(query, (lon_value, area_value, count))
+            conn.commit()
+
+            print(f"Zaktualizowano {count} wierszy o największym ID.")
+
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
