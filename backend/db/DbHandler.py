@@ -18,3 +18,19 @@ class DbHandler(ABC):
     @abstractmethod
     def insert(self, count: int):
         pass
+
+    @abstractmethod
+    def insert_all(self):
+        pass
+
+    @abstractmethod
+    def update(self, count: int):
+        pass
+
+    @abstractmethod
+    def delete(self, count: int):
+        pass
+
+    @abstractmethod
+    def delete_all(self):
+        pass
