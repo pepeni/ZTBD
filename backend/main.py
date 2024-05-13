@@ -1,6 +1,8 @@
-from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
-from backend.db.MongoHandler import MongoHandler
+from backend.dbtimetests.DbOperationsTimeTests import DbOperationsTimeTests
 
-crime_data_processor = CrimeDataProcessor()
-mongo_handler = MongoHandler(crime_data_processor)
-mongo_handler.insert(10)
+db_operations_timer = DbOperationsTimeTests()
+db_operations_timer.test_insert_time()
+db_operations_timer.test_update_time()
+db_operations_timer.test_delete_time()
+db_operations_timer.print()
+

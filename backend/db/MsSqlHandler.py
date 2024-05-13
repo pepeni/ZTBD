@@ -16,9 +16,9 @@ class MsSqlHandler(DbHandler):
         super().__init__(crime_data_processor)
 
         load_dotenv()
-        DRIVER_NAME = os.getenv("DRIVER_NAME")
-        SERVER_NAME = os.getenv("SERVER_NAME")
-        DATABASE_NAME = os.getenv("DATABASE_NAME")
+        DRIVER_NAME = os.getenv("MS_SQL_DRIVER_NAME")
+        SERVER_NAME = os.getenv("MS_SQL_SERVER_NAME")
+        DATABASE_NAME = os.getenv("MS_SQL_DATABASE_NAME")
         self.connection_string = f"""
                                             DRIVER={{{DRIVER_NAME}}};
                                             SERVER={SERVER_NAME};

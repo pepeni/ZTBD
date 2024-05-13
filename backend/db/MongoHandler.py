@@ -1,6 +1,7 @@
 import os
 
 import pymongo
+from dotenv import load_dotenv
 from pymongo.errors import PyMongoError
 
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
@@ -32,8 +33,28 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
+    def insert_all(self):
+        pass
+
+    def update(self, count: int):
+        pass
+
+    def delete(self, count: int):
+        pass
+
+    def delete_all(self):
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            collection.delete_many({})
+            print(f"Removed all records")
+        except PyMongoError as e:
+            print(f"Error: {e}")
+
     @staticmethod
     def get_mongo_client():
+        load_dotenv()
         return pymongo.MongoClient(os.environ['MONGO_HOST'], int(os.environ['MONGO_PORT']),
                                    username=os.environ['MONGO_USERNAME'],
                                    password=os.environ['MONGO_PASS'],

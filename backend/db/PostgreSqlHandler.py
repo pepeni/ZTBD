@@ -1,4 +1,7 @@
+import os
+
 import psycopg2
+from dotenv import load_dotenv
 from psycopg2 import OperationalError
 
 from backend.TableScripts.postgresTables import area_table, crime_table, victim_table, permis_table, weapon_table, status_table, crime_register_table
@@ -13,12 +16,13 @@ class PostgreSqlHandler(DbHandler):
 
     def init_database(self):
         try:
+            load_dotenv()
             connection = psycopg2.connect(
-                user=POSTGRES_USER,
-                password=POSTGRES_PASSWORD,
-                host=POSTGRES_HOST,
-                port=POSTGRES_PORT,
-                database=POSTGRES_DB
+                user=os.environ["POSTGRES_USER"],
+                password=os.environ["POSTGRES_PASSWORD"],
+                host=os.environ["POSTGRES_HOST"],
+                port=os.environ["POSTGRES_PORT"],
+                database=os.environ["POSTGRES_DB"]
             )
 
             cursor = connection.cursor()
@@ -45,4 +49,16 @@ class PostgreSqlHandler(DbHandler):
                 connection.close()
 
     def insert(self, count: int):
+        pass
+
+    def insert_all(self):
+        pass
+
+    def update(self, count: int):
+        pass
+
+    def delete(self, count: int):
+        pass
+
+    def delete_all(self):
         pass
