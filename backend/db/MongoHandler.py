@@ -4,6 +4,7 @@ import pymongo
 from dotenv import load_dotenv
 from pymongo.errors import PyMongoError
 
+from backend.crimedatapreprocessing.CrimeColumns import CrimeColumns
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
 from backend.db.DbHandler import DbHandler
 
@@ -28,18 +29,43 @@ class MongoHandler(DbHandler):
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
-            collection.insert_many(self.all_data.head(count).to_dict(orient='records'))
-            print(f"Inserted {count} records")
+            result = collection.insert_many(self.all_data.head(count).to_dict(orient='records'))
+            print(f"Inserted {len(result.inserted_ids)} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
     def insert_all(self):
-        pass
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.insert_many(self.all_data.to_dict(orient='records'))
+            print(f"Inserted {len(result.inserted_ids)} records")
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     def update(self, count: int):
-        pass
+        ids = self.all_data.head(count)[CrimeColumns.ID.value].to_list()
+        mongo_filter = {"id": {"$in": ids}}
+        mongo_updater = {"$set": {CrimeColumns.LATITUDE.value: 12.555, CrimeColumns.AREA.value: 1}}
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.update_many(mongo_filter, mongo_updater)
+            print(f"Updated {result.modified_count} records")
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     def delete(self, count: int):
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.delete_many({"id": {"$in": self.all_data.head(count)[CrimeColumns.ID.value].to_list()}})
+            print(f"Deleted {result.deleted_count} records")
+        except PyMongoError as e:
+            print(f"Error: {e}")
         pass
 
     def delete_all(self):
@@ -47,8 +73,8 @@ class MongoHandler(DbHandler):
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
-            collection.delete_many({})
-            print(f"Removed all records")
+            result = collection.delete_many({})
+            print(f"Removed {result.deleted_count} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
