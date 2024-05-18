@@ -34,3 +34,23 @@ class DbHandler(ABC):
     @abstractmethod
     def delete_all(self):
         pass
+
+    @abstractmethod
+    def select(self, count: int):
+        pass
+
+    @abstractmethod
+    def where_select(self, count: int):
+        pass
+
+    @abstractmethod
+    def join_select(self, count: int):
+        pass
+
+    @abstractmethod
+    def where_and_order_by_select(self, count: int):
+        pass
+
+    @abstractmethod
+    def complicated_select(self, count: int):
+        pass

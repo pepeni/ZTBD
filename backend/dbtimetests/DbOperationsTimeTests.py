@@ -1,3 +1,4 @@
+import json
 from typing import Callable
 
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
@@ -82,5 +83,19 @@ class DbOperationsTimeTests:
                 db_handler.insert_all()
                 self.results[self.DELETE][db_name][count] = measure_function_time(lambda: db_handler.delete(count))
 
+    def test_select_time(self):
+        for db_name, db_handler in self.db_handlers.items():
+            for dbSize in Config.DB_SIZE_TO_SELECT:
+                self.results[self.SELECT][db_name][dbSize] = {}
+                for count in Config.RECORD_TO_SELECT:
+                    self.results[self.SELECT][db_name][dbSize][count] = {}
+                    db_handler.delete_all()
+                    db_handler.insert(dbSize)
+                    self.results[self.SELECT][db_name][dbSize][count]["select"] = measure_function_time(lambda: db_handler.select(count))
+                    self.results[self.SELECT][db_name][dbSize][count]["where_select"] = measure_function_time(lambda: db_handler.where_select(count))
+                    self.results[self.SELECT][db_name][dbSize][count]["join_select"] = measure_function_time(lambda: db_handler.join_select(count))
+                    self.results[self.SELECT][db_name][dbSize][count]["where_and_order_by_select"] = measure_function_time(lambda: db_handler.where_and_order_by_select(count))
+                    self.results[self.SELECT][db_name][dbSize][count]["complicated_select"] = measure_function_time(lambda: db_handler.complicated_select(count))
+
     def print(self):
-        print(self.results)
+        print(json.dumps(self.results))

@@ -78,6 +78,27 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
+    def select(self, count: int):
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.find().limit(count)
+        except PyMongoError as e:
+            print(f"Error: {e}")
+
+    def where_select(self, count: int):
+        pass
+
+    def join_select(self, count: int):
+        pass
+
+    def where_and_order_by_select(self, count: int):
+        pass
+
+    def complicated_select(self, count: int):
+        pass
+
     @staticmethod
     def get_mongo_client():
         load_dotenv()

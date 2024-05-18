@@ -191,8 +191,25 @@ class MsSqlHandler(DbHandler):
 
                 print(f"Zaktualizowano {count} wierszy o największym ID.")
 
+
+
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
+
+    def select(self, count: int):
+        pass
+
+    def where_select(self, count: int):
+        pass
+
+    def join_select(self, count: int):
+        pass
+
+    def where_and_order_by_select(self, count: int):
+        pass
+
+    def complicated_select(self, count: int):
+        pass
 
     def select(self, select_text):
 

@@ -48,3 +48,19 @@ class CassandraHandler(DbHandler):
 
     def delete_all(self):
         pass
+
+    def select(self, count: int):
+        pass
+
+    def where_select(self, count: int):
+        pass
+
+    def join_select(self, count: int):
+        pass
+
+    def where_and_order_by_select(self, count: int):
+        pass
+
+    def complicated_select(self, count: int):
+        pass
+
