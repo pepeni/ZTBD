@@ -88,16 +88,47 @@ class MongoHandler(DbHandler):
             print(f"Error: {e}")
 
     def where_select(self, count: int):
-        pass
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.find({CrimeColumns.AREA.value: 1}).limit(count)
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     def join_select(self, count: int):
-        pass
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.find({
+                CrimeColumns.STATUS_DESC.value: 'Invest Cont'
+            }).sort({CrimeColumns.DATE.value: -1}).limit(count)
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     def where_and_order_by_select(self, count: int):
-        pass
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.find({CrimeColumns.AREA.value: 1}).sort({CrimeColumns.DATE.value: -1}).limit(count)
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     def complicated_select(self, count: int):
-        pass
+        try:
+            client = self.get_mongo_client()
+            db = client[self.DB_NAME]
+            collection = db[self.COLLECTION_NAME]
+            result = collection.find({
+                CrimeColumns.AREA_NAME.value: 'Newton',
+                CrimeColumns.WEAPON_USED_DESC.value: 'RIFLE'
+            }).sort({CrimeColumns.DATE.value: -1}).limit(count)
+            for x in result[1:10]:
+                print(x)
+        except PyMongoError as e:
+            print(f"Error: {e}")
 
     @staticmethod
     def get_mongo_client():
