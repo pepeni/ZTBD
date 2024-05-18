@@ -125,8 +125,6 @@ class MongoHandler(DbHandler):
                 CrimeColumns.AREA_NAME.value: 'Newton',
                 CrimeColumns.WEAPON_USED_DESC.value: 'RIFLE'
             }).sort({CrimeColumns.DATE.value: -1}).limit(count)
-            for x in result[1:10]:
-                print(x)
         except PyMongoError as e:
             print(f"Error: {e}")
 

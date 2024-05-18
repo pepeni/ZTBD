@@ -64,30 +64,49 @@ class DbOperationsTimeTests:
         }
 
     def test_insert_time(self):
+        print("------------------------------------------------")
+        print("----------------INSERT TESTING------------------")
+        print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
             for count in Config.INSERT:
+                print(f"Inserting {count} records to {db_name}")
                 db_handler.delete_all()
                 self.results[self.INSERT][db_name][count] = measure_function_time(lambda: db_handler.insert(count))
+                print()
 
     def test_update_time(self):
+        print("------------------------------------------------")
+        print("----------------UPDATE TESTING------------------")
+        print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
             for count in Config.INSERT:
+                print(f"Updating {count} records in {db_name}")
                 db_handler.delete_all()
                 db_handler.insert_all()
                 self.results[self.UPDATE][db_name][count] = measure_function_time(lambda: db_handler.update(count))
+                print()
 
     def test_delete_time(self):
+        print("------------------------------------------------")
+        print("----------------DELETE TESTING------------------")
+        print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
             for count in Config.INSERT:
+                print(f"Deleting {count} records from {db_name}")
                 db_handler.delete_all()
                 db_handler.insert_all()
                 self.results[self.DELETE][db_name][count] = measure_function_time(lambda: db_handler.delete(count))
+                print()
 
     def test_select_time(self):
+        print("------------------------------------------------")
+        print("----------------SELECT TESTING------------------")
+        print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
             for dbSize in Config.DB_SIZE_TO_SELECT:
                 self.results[self.SELECT][db_name][dbSize] = {}
                 for count in Config.RECORD_TO_SELECT:
+                    print(f"Selecting TOP({count}) records in {db_name} with size {dbSize}")
                     self.results[self.SELECT][db_name][dbSize][count] = {}
                     db_handler.delete_all()
                     db_handler.insert(dbSize)
@@ -96,6 +115,7 @@ class DbOperationsTimeTests:
                     self.results[self.SELECT][db_name][dbSize][count]["join_select"] = measure_function_time(lambda: db_handler.join_select(count))
                     self.results[self.SELECT][db_name][dbSize][count]["where_and_order_by_select"] = measure_function_time(lambda: db_handler.where_and_order_by_select(count))
                     self.results[self.SELECT][db_name][dbSize][count]["complicated_select"] = measure_function_time(lambda: db_handler.complicated_select(count))
+                    print()
 
     def print(self):
         print(json.dumps(self.results))
