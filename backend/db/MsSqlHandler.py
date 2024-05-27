@@ -197,21 +197,39 @@ class MsSqlHandler(DbHandler):
             print(f"Wystąpił błąd: {e}")
 
     def select(self, count: int):
-        pass
+        self.select_template(f"SELECT TOP({count}) * FROM CrimeRegister;")
 
     def where_select(self, count: int):
-        pass
+        self.select_template(f"SELECT TOP({count}) * FROM CrimeRegister WHERE AREA_ID = 1;")
 
     def join_select(self, count: int):
-        pass
+        self.select_template(f"""
+            SELECT TOP({count}) c.*, s.STATUS_DESC 
+            FROM CrimeRegister c 
+            JOIN Status s ON s.STATUS_ID = c.STATUS_ID 
+            WHERE s.STATUS_DESC = 'Invest Cont';
+            """)
 
     def where_and_order_by_select(self, count: int):
-        pass
+        self.select_template(f"""
+            SELECT TOP({count}) * 
+            FROM CrimeRegister 
+            WHERE AREA_ID = 1
+            ORDER BY DATE_OCC DESC;
+            """)
 
     def complicated_select(self, count: int):
-        pass
+        self.select_template(f"""
+            SELECT TOP({count}) *
+            FROM CrimeRegister c 
+            JOIN Area a ON a.AREA_ID = c.AREA_ID 
+            JOIN Weapon w ON w.WEAPON_ID = c.WEAPON_ID
+            JOIN Victim v ON v.VICTIM_ID = c.VICTIM_ID
+            WHERE a.AREA_NAME = 'Central' AND w.WEAPON_DESC = 'RIFLE'
+            ORDER BY v.VICT_AGE;
+            """)
 
-    def select(self, select_text):
+    def select_template(self, select_text):
 
         # Wykonanie zapytania
         try:
@@ -227,45 +245,4 @@ class MsSqlHandler(DbHandler):
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-if __name__ == "__main__":
-    crime_data_processor = CrimeDataProcessor()
-    db = MsSqlHandler(crime_data_processor)
-
-
-    import time
-
-
-    # Funkcja do pomiaru czasu wykonania zapytania
-    def measure_execution_time(query, db):
-        start_time = time.time()
-        db.select(query)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"Czas wykonania zapytania: {execution_time:.6f} sekund")
-
-
-    # Pomiar czasu wykonania każdego zapytania
-    queries = [
-        "SELECT TOP(500) * FROM CrimeRegister;",
-        "SELECT TOP(500) * FROM CrimeRegister WHERE AREA_ID = 1;",
-        """SELECT TOP(500) c.*, s.STATUS_DESC 
-        FROM CrimeRegister c 
-        JOIN Status s ON s.STATUS_ID = c.STATUS_ID 
-        WHERE s.STATUS_DESC = 'Invest Cont';""",
-        """SELECT TOP(500) * 
-        FROM CrimeRegister 
-        WHERE AREA_ID = 1
-        ORDER BY DATE_OCC DESC;""",
-        """SELECT TOP(500) *
-        FROM CrimeRegister c 
-        JOIN Area a ON a.AREA_ID = c.AREA_ID 
-        JOIN Weapon w ON w.WEAPON_ID = c.WEAPON_ID
-        JOIN Victim v ON v.VICTIM_ID = c.VICTIM_ID
-        WHERE a.AREA_NAME = 'Central' AND w.WEAPON_DESC = 'RIFLE'
-        ORDER BY v.VICT_AGE;
-        """
-    ]
-
-    for query in queries:
-        measure_execution_time(query, db)
 
