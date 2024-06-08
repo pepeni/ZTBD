@@ -1,7 +1,6 @@
 import os
 
 import psycopg2
-import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 from pandas import DataFrame
@@ -41,16 +40,26 @@ class PostgreSqlHandler(DbHandler):
     def init_database(self):
         try:
             cursor = self.connection.cursor()
+            insert_all = False
             list_of_tables = {'area': area_table, 'crime': crime_table, 'victim': victim_table, 'permis': permis_table,
                               'weapon': weapon_table, 'status': status_table, 'crimeregister': crime_register_table}
             for table_name, table_script in list_of_tables.items():
                 cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = %s", (table_name,))
                 if cursor.fetchone()[0] == 1:
-                    print("Tabela", table_name, "istnieje.")
+                    pass
                 else:
-                    print("Dodaję tabelę", table_name)
                     cursor.execute(table_script)
+                    insert_all = True
             self.connection.commit()
+
+            if insert_all:
+                self.insert_data(self.area_data, insert_area_query)
+                self.insert_data(self.crime_code_data, insert_crime_query)
+                self.insert_data(self.victim_data, insert_victim_query)
+                self.insert_data(self.premise_data, insert_permis_query)
+                self.insert_data(self.weapon_data, insert_weapon_query)
+                self.insert_data(self.status_data, insert_status_query)
+
         except OperationalError as e:
             print(f"Błąd: {e}")
         finally:
@@ -63,10 +72,10 @@ class PostgreSqlHandler(DbHandler):
             df = df.replace(np.nan, None)
 
             for i, row in enumerate(df.itertuples(index=False)):
+                if i > 3000:
+                    break
                 cursor.execute(insert_query, row)
             self.connection.commit()
-
-            print(f"Dodano dane do tabeli. {insert_query}")
 
         except OperationalError as e:
             print(f"Wystąpił błąd podczas dodawania danych do tabeli: {e}")
@@ -76,44 +85,108 @@ class PostgreSqlHandler(DbHandler):
     def insert(self, count: int):
         try:
             df = self.crime_register_data.head(count).copy()
-            self.insert_data(df, crime_register_table)
-            print(f"Dodano {count} danych do Crime register.")
+            self.insert_data(df, insert_crime_register_query)
         except OperationalError as e:
             print(f"Wystąpił błąd: {e}")
 
     def insert_all(self):
         try:
-            self.insert_data(self.area_data, insert_area_query)
-            self.insert_data(self.crime_code_data, insert_crime_query)
-            self.insert_data(self.victim_data, insert_victim_query)
-            self.insert_data(self.premise_data, insert_permis_query)
-            self.insert_data(self.weapon_data, insert_weapon_query)
-            self.insert_data(self.status_data, insert_status_query)
             self.insert_data(self.crime_register_data, insert_crime_register_query)
-            print("Dodano dane do wszystkich tabel.")
         except OperationalError as e:
             print(f"Wystąpił błąd: {e}")
 
     def update(self, count: int):
-        pass
+        try:
+            cursor = self.connection.cursor()
+            query = """
+                        UPDATE crimeregister
+                        SET lon = %s, area_id = %s
+                        WHERE id IN (
+                            SELECT id
+                            FROM crimeregister
+                            ORDER BY id DESC
+                            LIMIT %s
+                        )
+                    """
+            cursor.execute(query, (12.555, 1, count))
+            self.connection.commit()
+        except OperationalError as e:
+            print(f"Wystąpił błąd: {e}")
+        finally:
+            cursor.close()
 
     def delete(self, count: int):
-        pass
+        try:
+            cursor = self.connection.cursor()
+            query = f"""
+                        DELETE FROM crimeregister
+                        WHERE id IN (
+                            SELECT id
+                            FROM crimeregister
+                            ORDER BY id DESC
+                            LIMIT {count}
+                        )
+                    """
+            cursor.execute(query)
+            self.connection.commit()
+        except OperationalError as e:
+            print(f"Wystąpił błąd: {e}")
+        finally:
+            cursor.close()
 
     def delete_all(self):
-        pass
+        try:
+            cursor = self.connection.cursor()
+            query = """DELETE FROM crimeregister;"""
+            cursor.execute(query)
+            self.connection.commit()
+        except OperationalError as e:
+            print(f"Wystąpił błąd: {e}")
+        finally:
+            cursor.close()
+
+    def select_template(self, select_text: str):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(select_text)
+            # records = cursor.fetchall()
+        except OperationalError as e:
+            print(f"Wystąpił błąd: {e}")
+        finally:
+            cursor.close()
 
     def select(self, count: int):
-        pass
+        self.select_template(f"SELECT * FROM crimeregister LIMIT {count};")
 
     def where_select(self, count: int):
-        pass
+        self.select_template(f"SELECT * FROM crimeregister WHERE area_id = 1 LIMIT {count};")
 
     def join_select(self, count: int):
-        pass
+        self.select_template(f"""
+            SELECT c.*, s.status_desc 
+            FROM crimeregister c 
+            JOIN status s ON s.status_id = c.status_id 
+            WHERE s.status_desc = 'Invest Cont'
+            LIMIT {count};
+        """)
 
     def where_and_order_by_select(self, count: int):
-        pass
+        self.select_template(f"""
+            SELECT * 
+            FROM crimeregister 
+            WHERE area_id = 1
+            ORDER BY date_occ DESC
+            LIMIT {count};
+        """)
 
-    def complicated_select(self):
-        pass
+    def complicated_select(self, count: int):
+        self.select_template(f"""
+            SELECT c.*, a.area_name, w.weapon_desc, v.vict_age
+            FROM crimeregister c 
+            JOIN area a ON a.area_id = c.area_id 
+            JOIN weapon w ON w.weapon_id = c.weapon_id
+            JOIN victim v ON v.victim_id = c.victim_id
+            WHERE a.area_name = 'Central' AND w.weapon_desc = 'RIFLE'
+            ORDER BY v.vict_age
+            LIMIT {count};
+        """)

@@ -1,5 +1,5 @@
 crime_register_table = '''
-CREATE TABLE CrimeRegister (
+CREATE TABLE IF NOT EXISTS CrimeRegister (
     ID SERIAL PRIMARY KEY,
     AREA_ID INT REFERENCES Area(AREA_ID),
     CRIME_ID INT REFERENCES Crime(CRIME_ID),
@@ -18,21 +18,21 @@ CREATE TABLE CrimeRegister (
 '''
 
 area_table = '''
-CREATE TABLE Area (
+CREATE TABLE IF NOT EXISTS Area (
     AREA_ID SERIAL PRIMARY KEY,
     AREA_NAME VARCHAR(30)
 )
 '''
 
 crime_table = '''
-CREATE TABLE Crime (
+CREATE TABLE IF NOT EXISTS Crime (
     CRIME_ID SERIAL PRIMARY KEY,
     DESCRIPTION VARCHAR(60)
 )
 '''
 
 victim_table = '''
-CREATE TABLE Victim (
+CREATE TABLE IF NOT EXISTS Victim (
     VICTIM_ID SERIAL PRIMARY KEY,
     VICT_AGE INT,
     VICT_SEX VARCHAR(1),
@@ -41,21 +41,21 @@ CREATE TABLE Victim (
 '''
 
 permis_table = '''
-CREATE TABLE Permis (
+CREATE TABLE IF NOT EXISTS Permis (
     PERMIS_ID SERIAL PRIMARY KEY,
     PERMIS_DESC VARCHAR(100)
 )
 '''
 
 weapon_table = '''
-CREATE TABLE Weapon (
+CREATE TABLE IF NOT EXISTS Weapon (
     WEAPON_ID SERIAL PRIMARY KEY,
     WEAPON_DESC VARCHAR(60)
 )
 '''
 
 status_table = '''
-CREATE TABLE Status (
+CREATE TABLE IF NOT EXISTS Status (
     STATUS_ID VARCHAR(5) PRIMARY KEY,
     STATUS_DESC VARCHAR(60)
 )
