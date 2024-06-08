@@ -7,8 +7,6 @@ from backend.db.DbHandler import DbHandler
 from dotenv import load_dotenv
 import os
 import numpy as np
-import pandas as pd
-from itertools import count as iter_count
 
 
 class MsSqlHandler(DbHandler):
@@ -38,13 +36,11 @@ class MsSqlHandler(DbHandler):
         self.init_database()
 
     def init_database(self):
-
         try:
             # Połączenie
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
-
-                # Sprawdzam, czy istnieją tabele
+                insert_all = False
 
                 list_of_tables = {'Area': area_table, 'Crime': crime_table, 'Victim': victim_table, 'Permis': permis_table,
                                   'Weapon': weapon_table, 'Status': status_table, 'CrimeRegister': crime_register_table}
@@ -53,45 +49,35 @@ class MsSqlHandler(DbHandler):
 
                     # Jeśli tabela istnieje
                     if cursor.fetchone()[0] == 1:
-                        print("Tabela", i, "istnieje.")
+                        pass
 
                     # Jeśli tabela nie istnieje, dodaje ją
                     else:
                         print("Dodaję tabelę", i)
                         cursor.execute(list_of_tables[i])
                         conn.commit()
+                        insert_all = True
+
+                if insert_all:
+
+                    # Wstaw dane do wszystkich tabeli poza crime register
+                    self.insert_data(self.area_data, insert_area_table, cursor, conn)
+                    self.insert_data(self.crime_code_data, insert_crime_table, cursor, conn)
+                    self.insert_data(self.victim_data, insert_victim_table, cursor, conn)
+                    self.insert_data(self.premise_data, insert_permis_table, cursor, conn)
+                    self.insert_data(self.weapon_data, insert_weapon_table, cursor, conn)
+                    self.insert_data(self.status_data, insert_status_table, cursor, conn)
 
         except odbc.Error as e:
             print(f"Błąd: {e}")
 
     def insert_all(self):
-
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
 
-                # Wstaw dane do tabeli Area
-                self.insert_data(self.area_data, insert_area_table, cursor, conn)
-
-                # Wstaw dane do tabeli Crime
-                self.insert_data(self.crime_code_data, insert_crime_table, cursor, conn)
-
-                # Wstaw dane do tabeli Victim
-                self.insert_data(self.victim_data, insert_victim_table, cursor, conn)
-
-                # Wstaw dane do tabeli Permis
-                self.insert_data(self.premise_data, insert_permis_table, cursor, conn)
-
-                # Wstaw dane do tabeli Weapon
-                self.insert_data(self.weapon_data, insert_weapon_table, cursor, conn)
-
-                # Wstaw dane do tabeli Status
-                self.insert_data(self.status_data, insert_status_table, cursor, conn)
-
-                # Wstaw dane do tabeli CrimeRegister
+                # Wstaw dane do crime register tabeli
                 self.insert_data(self.crime_register_data, insert_crime_register_table, cursor, conn)
-
-                print("Dodano dane do wszystkich tabel.")
 
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
@@ -107,29 +93,22 @@ class MsSqlHandler(DbHandler):
                 cursor.execute(insert_query, row)
             conn.commit()
 
-            print(f"Dodano dane do tabeli.")
-
         except pyodbc.Error as e:
             print(f"Wystąpił błąd podczas dodawania danych do tabeli: {e}")
 
+    # Wstaw count danych do tabeli CrimeRegister
     def insert(self, count: int):
-
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
-
                 df = self.crime_register_data.head(count).copy()
-
-                # Wstaw dane do tabeli CrimeRegister
                 self.insert_data(df, insert_crime_register_table, cursor, conn)
-
                 print(f"Dodano {count} danych do Crime register.")
 
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
     def delete(self, count: int):
-
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
@@ -191,8 +170,6 @@ class MsSqlHandler(DbHandler):
 
                 print(f"Zaktualizowano {count} wierszy o największym ID.")
 
-
-
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
@@ -235,14 +212,9 @@ class MsSqlHandler(DbHandler):
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
-
                 query = f"""{select_text}"""
 
                 cursor.execute(query)
 
-                print(f"Znaleziono wiersze.")
-
         except pyodbc.Error as e:
             print(f"Wystąpił błąd: {e}")
-
-
