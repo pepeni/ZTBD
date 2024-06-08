@@ -6,11 +6,11 @@ from backend.db.DbHandler import DbHandler
 
 
 class CassandraHandler(DbHandler):
-    def __init__(self, crime_data_processor: CrimeDataProcessor):
+    def __init__(self, crime_data_processor: CrimeDataProcessor) -> None:
         super().__init__(crime_data_processor)
         self.init_database()
 
-    def init_database(self):
+    def init_database(self) -> None:
         pass
         # try:
         #     cluster = Cluster([CASSANDRA_HOST], port=CASSANDRA_PORT)
@@ -34,33 +34,33 @@ class CassandraHandler(DbHandler):
         #     if cluster:
         #         cluster.shutdown()
 
-    def insert(self, count: int):
+    def insert(self, count: int) -> None:
         pass
 
-    def insert_all(self):
+    def insert_all(self) -> None:
         pass
 
-    def update(self, count: int):
+    def update(self, count: int) -> None:
         pass
 
-    def delete(self, count: int):
+    def delete(self, count: int) -> None:
         pass
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         pass
 
-    def select(self, count: int):
+    def select(self, count: int) -> None:
         pass
 
-    def where_select(self, count: int):
+    def where_select(self, count: int) -> None:
         pass
 
-    def join_select(self, count: int):
+    def join_select(self, count: int) -> None:
         pass
 
-    def where_and_order_by_select(self, count: int):
+    def where_and_order_by_select(self, count: int) -> None:
         pass
 
-    def complicated_select(self, count: int):
+    def complicated_select(self, count: int) -> None:
         pass
 

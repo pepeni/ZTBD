@@ -1,5 +1,5 @@
-import pyodbc
 import pyodbc as odbc
+from pandas import DataFrame
 
 from backend.TableScripts.msSqlTables import *
 from backend.crimedatapreprocessing.CrimeDataProcessor import CrimeDataProcessor
@@ -10,7 +10,7 @@ import numpy as np
 
 
 class MsSqlHandler(DbHandler):
-    def __init__(self, crime_data_processor: CrimeDataProcessor):
+    def __init__(self, crime_data_processor: CrimeDataProcessor) -> None:
         super().__init__(crime_data_processor)
 
         load_dotenv()
@@ -35,9 +35,8 @@ class MsSqlHandler(DbHandler):
 
         self.init_database()
 
-    def init_database(self):
+    def init_database(self) -> None:
         try:
-            # Połączenie
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
                 insert_all = False
@@ -47,20 +46,15 @@ class MsSqlHandler(DbHandler):
                 for i in list_of_tables.keys():
                     cursor.execute("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?", (i,))
 
-                    # Jeśli tabela istnieje
                     if cursor.fetchone()[0] == 1:
                         pass
 
-                    # Jeśli tabela nie istnieje, dodaje ją
                     else:
-                        print("Dodaję tabelę", i)
                         cursor.execute(list_of_tables[i])
                         conn.commit()
                         insert_all = True
 
                 if insert_all:
-
-                    # Wstaw dane do wszystkich tabeli poza crime register
                     self.insert_data(self.area_data, insert_area_table, cursor, conn)
                     self.insert_data(self.crime_code_data, insert_crime_table, cursor, conn)
                     self.insert_data(self.victim_data, insert_victim_table, cursor, conn)
@@ -71,21 +65,19 @@ class MsSqlHandler(DbHandler):
         except odbc.Error as e:
             print(f"Błąd: {e}")
 
-    def insert_all(self):
+    def insert_all(self) -> None:
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
 
-                # Wstaw dane do crime register tabeli
                 self.insert_data(self.crime_register_data, insert_crime_register_table, cursor, conn)
 
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-    def insert_data(self, df, insert_query, cursor, conn):
+    def insert_data(self, df: DataFrame, insert_query: str, cursor: odbc.Cursor, conn: odbc.Connection) -> None:
 
         try:
-            # Wstaw dane do tabeli
             df = df.dropna(subset=df.columns[0])
             df = df.replace(np.nan, None)
 
@@ -93,44 +85,40 @@ class MsSqlHandler(DbHandler):
                 cursor.execute(insert_query, row)
             conn.commit()
 
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd podczas dodawania danych do tabeli: {e}")
 
-    # Wstaw count danych do tabeli CrimeRegister
-    def insert(self, count: int):
+    def insert(self, count: int) -> None:
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
                 df = self.crime_register_data.head(count).copy()
                 self.insert_data(df, insert_crime_register_table, cursor, conn)
-                print(f"Dodano {count} danych do Crime register.")
 
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-    def delete(self, count: int):
+    def delete(self, count: int) -> None:
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
 
-                query = """
+                query = f"""
                         DELETE FROM CrimeRegister
                         WHERE ID IN (
-                            SELECT TOP {} ID
+                            SELECT TOP {count} ID
                             FROM CrimeRegister
                             ORDER BY ID DESC
                         )
-                        """.format(count)
+                        """
 
                 cursor.execute(query)
                 conn.commit()
 
-                print(f"Usunięto {count} wierszy o największym ID.")
-
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-    def delete_all(self):
+    def delete_all(self) -> None:
 
         try:
             with odbc.connect(self.connection_string) as conn:
@@ -141,12 +129,10 @@ class MsSqlHandler(DbHandler):
                 cursor.execute(query)
                 conn.commit()
 
-                print(f"Usunięto Wszystkie dane z Crime Register")
-
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-    def update(self, count: int):
+    def update(self, count: int) -> None:
 
         try:
             with odbc.connect(self.connection_string) as conn:
@@ -168,18 +154,16 @@ class MsSqlHandler(DbHandler):
                 cursor.execute(query, (lon_value, area_value, count))
                 conn.commit()
 
-                print(f"Zaktualizowano {count} wierszy o największym ID.")
-
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")
 
-    def select(self, count: int):
+    def select(self, count: int) -> None:
         self.select_template(f"SELECT TOP({count}) * FROM CrimeRegister;")
 
-    def where_select(self, count: int):
+    def where_select(self, count: int) -> None:
         self.select_template(f"SELECT TOP({count}) * FROM CrimeRegister WHERE AREA_ID = 1;")
 
-    def join_select(self, count: int):
+    def join_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT TOP({count}) c.*, s.STATUS_DESC 
             FROM CrimeRegister c 
@@ -187,7 +171,7 @@ class MsSqlHandler(DbHandler):
             WHERE s.STATUS_DESC = 'Invest Cont';
             """)
 
-    def where_and_order_by_select(self, count: int):
+    def where_and_order_by_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT TOP({count}) * 
             FROM CrimeRegister 
@@ -195,7 +179,7 @@ class MsSqlHandler(DbHandler):
             ORDER BY DATE_OCC DESC;
             """)
 
-    def complicated_select(self, count: int):
+    def complicated_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT TOP({count}) *
             FROM CrimeRegister c 
@@ -206,9 +190,7 @@ class MsSqlHandler(DbHandler):
             ORDER BY v.VICT_AGE;
             """)
 
-    def select_template(self, select_text):
-
-        # Wykonanie zapytania
+    def select_template(self, select_text: str) -> None:
         try:
             with odbc.connect(self.connection_string) as conn:
                 cursor = conn.cursor()
@@ -216,5 +198,5 @@ class MsSqlHandler(DbHandler):
 
                 cursor.execute(query)
 
-        except pyodbc.Error as e:
+        except odbc.Error as e:
             print(f"Wystąpił błąd: {e}")

@@ -1,4 +1,5 @@
 import os
+from typing import Mapping, Any
 
 import pymongo
 from dotenv import load_dotenv
@@ -16,7 +17,7 @@ class MongoHandler(DbHandler):
         super().__init__(crime_data_processor)
         self.init_database()
 
-    def init_database(self):
+    def init_database(self) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -24,7 +25,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def insert(self, count: int):
+    def insert(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -34,7 +35,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def insert_all(self):
+    def insert_all(self) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -44,7 +45,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def update(self, count: int):
+    def update(self, count: int) -> None:
         ids = self.all_data.head(count)[CrimeColumns.ID.value].to_list()
         mongo_filter = {"id": {"$in": ids}}
         mongo_updater = {"$set": {CrimeColumns.LATITUDE.value: 12.555, CrimeColumns.AREA.value: 1}}
@@ -57,7 +58,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def delete(self, count: int):
+    def delete(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -68,7 +69,7 @@ class MongoHandler(DbHandler):
             print(f"Error: {e}")
         pass
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -78,7 +79,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def select(self, count: int):
+    def select(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -87,7 +88,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def where_select(self, count: int):
+    def where_select(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -96,7 +97,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def join_select(self, count: int):
+    def join_select(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -107,7 +108,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def where_and_order_by_select(self, count: int):
+    def where_and_order_by_select(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -116,7 +117,7 @@ class MongoHandler(DbHandler):
         except PyMongoError as e:
             print(f"Error: {e}")
 
-    def complicated_select(self, count: int):
+    def complicated_select(self, count: int) -> None:
         try:
             client = self.get_mongo_client()
             db = client[self.DB_NAME]
@@ -129,7 +130,7 @@ class MongoHandler(DbHandler):
             print(f"Error: {e}")
 
     @staticmethod
-    def get_mongo_client():
+    def get_mongo_client() -> pymongo.MongoClient[Mapping[str, Any]]:
         load_dotenv()
         return pymongo.MongoClient(os.environ['MONGO_HOST'], int(os.environ['MONGO_PORT']),
                                    username=os.environ['MONGO_USERNAME'],

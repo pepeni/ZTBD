@@ -16,7 +16,7 @@ class CrimeDataProcessor:
     STATUS_COLUMNS = [CrimeColumns.STATUS.value, CrimeColumns.STATUS_DESC.value]
     VICTIM_COLUMNS = [CrimeColumns.VICTIM_AGE.value, CrimeColumns.VICTIM_SEX.value, CrimeColumns.VICTIM_DESCENT.value]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.download_crime_data()
         df = pd.read_csv(self.CRIME_DATA_FILENAME)
         df = self.drop_unnecessary_columns(df)
@@ -43,7 +43,7 @@ class CrimeDataProcessor:
     def all_data(self) -> pd.DataFrame:
         return self.crime_data
 
-    def download_crime_data(self):
+    def download_crime_data(self) -> None:
         if not os.path.exists(self.CRIME_DATA_FILENAME):
             print("Downloading crime data ...")
             response = requests.get(self.CRIME_DATA_URL)

@@ -14,7 +14,7 @@ from backend.db.DbHandler import DbHandler
 
 
 class PostgreSqlHandler(DbHandler):
-    def __init__(self, crime_data_processor: CrimeDataProcessor):
+    def __init__(self, crime_data_processor: CrimeDataProcessor) -> None:
         super().__init__(crime_data_processor)
 
         load_dotenv()
@@ -37,7 +37,7 @@ class PostgreSqlHandler(DbHandler):
 
         self.init_database()
 
-    def init_database(self):
+    def init_database(self) -> None:
         try:
             cursor = self.connection.cursor()
             insert_all = False
@@ -65,7 +65,7 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def insert_data(self, df: DataFrame, insert_query: str):
+    def insert_data(self, df: DataFrame, insert_query: str) -> None:
         try:
             cursor = self.connection.cursor()
             df = df.dropna(subset=df.columns[0])
@@ -82,20 +82,20 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def insert(self, count: int):
+    def insert(self, count: int) -> None:
         try:
             df = self.crime_register_data.head(count).copy()
             self.insert_data(df, insert_crime_register_query)
         except OperationalError as e:
             print(f"Wystąpił błąd: {e}")
 
-    def insert_all(self):
+    def insert_all(self) -> None:
         try:
             self.insert_data(self.crime_register_data, insert_crime_register_query)
         except OperationalError as e:
             print(f"Wystąpił błąd: {e}")
 
-    def update(self, count: int):
+    def update(self, count: int) -> None:
         try:
             cursor = self.connection.cursor()
             query = """
@@ -115,7 +115,7 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def delete(self, count: int):
+    def delete(self, count: int) -> None:
         try:
             cursor = self.connection.cursor()
             query = f"""
@@ -134,7 +134,7 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         try:
             cursor = self.connection.cursor()
             query = """DELETE FROM crimeregister;"""
@@ -145,7 +145,7 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def select_template(self, select_text: str):
+    def select_template(self, select_text: str) -> None:
         try:
             cursor = self.connection.cursor()
             cursor.execute(select_text)
@@ -155,13 +155,13 @@ class PostgreSqlHandler(DbHandler):
         finally:
             cursor.close()
 
-    def select(self, count: int):
+    def select(self, count: int) -> None:
         self.select_template(f"SELECT * FROM crimeregister LIMIT {count};")
 
-    def where_select(self, count: int):
+    def where_select(self, count: int) -> None:
         self.select_template(f"SELECT * FROM crimeregister WHERE area_id = 1 LIMIT {count};")
 
-    def join_select(self, count: int):
+    def join_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT c.*, s.status_desc 
             FROM crimeregister c 
@@ -170,7 +170,7 @@ class PostgreSqlHandler(DbHandler):
             LIMIT {count};
         """)
 
-    def where_and_order_by_select(self, count: int):
+    def where_and_order_by_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT * 
             FROM crimeregister 
@@ -179,7 +179,7 @@ class PostgreSqlHandler(DbHandler):
             LIMIT {count};
         """)
 
-    def complicated_select(self, count: int):
+    def complicated_select(self, count: int) -> None:
         self.select_template(f"""
             SELECT c.*, a.area_name, w.weapon_desc, v.vict_age
             FROM crimeregister c 

@@ -10,7 +10,7 @@ import time
 from . import Config
 
 
-def measure_function_time(function: Callable):
+def measure_function_time(function: Callable) -> float:
     start = time.time()
     function()
     end = time.time()
@@ -28,7 +28,7 @@ class DbOperationsTimeTests:
     CASSANDRA = "CASSANDRA"
     MS_SQL = "MS_SQL"
 
-    def __init__(self):
+    def __init__(self) -> None:
         crime_data_processor = CrimeDataProcessor()
         self.db_handlers = {
             self.MONGO: MongoHandler(crime_data_processor),
@@ -63,7 +63,7 @@ class DbOperationsTimeTests:
             }
         }
 
-    def test_insert_time(self):
+    def test_insert_time(self) -> None:
         print("------------------------------------------------")
         print("----------------INSERT TESTING------------------")
         print("------------------------------------------------\n")
@@ -74,7 +74,7 @@ class DbOperationsTimeTests:
                 self.results[self.INSERT][db_name][count] = measure_function_time(lambda: db_handler.insert(count))
                 print()
 
-    def test_update_time(self):
+    def test_update_time(self) -> None:
         print("------------------------------------------------")
         print("----------------UPDATE TESTING------------------")
         print("------------------------------------------------\n")
@@ -86,7 +86,7 @@ class DbOperationsTimeTests:
                 self.results[self.UPDATE][db_name][count] = measure_function_time(lambda: db_handler.update(count))
                 print()
 
-    def test_delete_time(self):
+    def test_delete_time(self) -> None:
         print("------------------------------------------------")
         print("----------------DELETE TESTING------------------")
         print("------------------------------------------------\n")
@@ -98,7 +98,7 @@ class DbOperationsTimeTests:
                 self.results[self.DELETE][db_name][count] = measure_function_time(lambda: db_handler.delete(count))
                 print()
 
-    def test_select_time(self):
+    def test_select_time(self) -> None:
         print("------------------------------------------------")
         print("----------------SELECT TESTING------------------")
         print("------------------------------------------------\n")
@@ -117,5 +117,5 @@ class DbOperationsTimeTests:
                     self.results[self.SELECT][db_name][dbSize][count]["complicated_select"] = measure_function_time(lambda: db_handler.complicated_select(count))
                     print()
 
-    def print(self):
+    def print(self) -> None:
         print(json.dumps(self.results))
