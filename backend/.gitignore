@@ -5,3 +5,4 @@ crimedata.csv
 __pycache__
 db/crimedata.csv
 db/Test.py
+output_data
