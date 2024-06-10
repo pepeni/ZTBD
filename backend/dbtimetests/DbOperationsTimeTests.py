@@ -8,6 +8,7 @@ from backend.db.MsSqlHandler import MsSqlHandler
 from backend.db.PostgreSqlHandler import PostgreSqlHandler
 import time
 from . import Config
+from ..data_utils.file_operations import FileOperations
 
 
 def measure_function_time(function: Callable) -> float:
@@ -21,44 +22,72 @@ class DbOperationsTimeTests:
     INSERT = "INSERT"
     UPDATE = "UPDATE"
     DELETE = "DELETE"
-    SELECT = "SELECT"
+    SELECT_SIMPLE = "SELECT_SIMPLE"
+    SELECT_WHERE = "SELECT_WHERE"
+    SELECT_JOIN = "SELECT_JOIN"
+    SELECT_WHERE_ORDERBY = "SELECT_WHERE_ORDERBY"
+    SELECT_COMPLICATED = "SELECT_COMPLICATED"
 
     MONGO = "MONGO"
-    POSTGRES = "POSTGRES"
     CASSANDRA = "CASSANDRA"
+    POSTGRES = "POSTGRES"
     MS_SQL = "MS_SQL"
 
     def __init__(self) -> None:
         crime_data_processor = CrimeDataProcessor()
         self.db_handlers = {
             self.MONGO: MongoHandler(crime_data_processor),
-            # self.POSTGRES: PostgreSqlHandler(crime_data_processor),
+            self.POSTGRES: PostgreSqlHandler(crime_data_processor),
             # self.CASSANDRA: CassandraHandler(crime_data_processor),
             # self.MS_SQL: MsSqlHandler(crime_data_processor)
         }
         self.results = {
             self.INSERT: {
                 self.MONGO: {},
-                self.POSTGRES: {},
                 self.CASSANDRA: {},
+                self.POSTGRES: {},
                 self.MS_SQL: {}
             },
             self.UPDATE: {
                 self.MONGO: {},
-                self.POSTGRES: {},
                 self.CASSANDRA: {},
+                self.POSTGRES: {},
                 self.MS_SQL: {}
             },
             self.DELETE: {
                 self.MONGO: {},
-                self.POSTGRES: {},
                 self.CASSANDRA: {},
+                self.POSTGRES: {},
                 self.MS_SQL: {}
             },
-            self.SELECT: {
+            self.SELECT_SIMPLE: {
                 self.MONGO: {},
-                self.POSTGRES: {},
                 self.CASSANDRA: {},
+                self.POSTGRES: {},
+                self.MS_SQL: {}
+            },
+            self.SELECT_WHERE: {
+                self.MONGO: {},
+                self.CASSANDRA: {},
+                self.POSTGRES: {},
+                self.MS_SQL: {}
+            },
+            self.SELECT_JOIN: {
+                self.MONGO: {},
+                self.CASSANDRA: {},
+                self.POSTGRES: {},
+                self.MS_SQL: {}
+            },
+            self.SELECT_WHERE_ORDERBY: {
+                self.MONGO: {},
+                self.CASSANDRA: {},
+                self.POSTGRES: {},
+                self.MS_SQL: {}
+            },
+            self.SELECT_COMPLICATED: {
+                self.MONGO: {},
+                self.CASSANDRA: {},
+                self.POSTGRES: {},
                 self.MS_SQL: {}
             }
         }
@@ -98,24 +127,69 @@ class DbOperationsTimeTests:
                 self.results[self.DELETE][db_name][count] = measure_function_time(lambda: db_handler.delete(count))
                 print()
 
-    def test_select_time(self) -> None:
+    def test_select_simple_time(self) -> None:
         print("------------------------------------------------")
-        print("----------------SELECT TESTING------------------")
+        print("----------------SELECT SIMPLE TESTING------------------")
         print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
-            for dbSize in Config.DB_SIZE_TO_SELECT:
-                self.results[self.SELECT][db_name][dbSize] = {}
-                for count in Config.RECORD_TO_SELECT:
-                    print(f"Selecting TOP({count}) records in {db_name} with size {dbSize}")
-                    self.results[self.SELECT][db_name][dbSize][count] = {}
-                    db_handler.delete_all()
-                    db_handler.insert(dbSize)
-                    self.results[self.SELECT][db_name][dbSize][count]["select"] = measure_function_time(lambda: db_handler.select(count))
-                    self.results[self.SELECT][db_name][dbSize][count]["where_select"] = measure_function_time(lambda: db_handler.where_select(count))
-                    self.results[self.SELECT][db_name][dbSize][count]["join_select"] = measure_function_time(lambda: db_handler.join_select(count))
-                    self.results[self.SELECT][db_name][dbSize][count]["where_and_order_by_select"] = measure_function_time(lambda: db_handler.where_and_order_by_select(count))
-                    self.results[self.SELECT][db_name][dbSize][count]["complicated_select"] = measure_function_time(lambda: db_handler.complicated_select(count))
-                    print()
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(simple) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_SIMPLE][db_name][count] = measure_function_time(lambda: db_handler.select(count))
+                print()
+
+    def test_select_where_time(self) -> None:
+        print("------------------------------------------------")
+        print("----------------SELECT WHERE TESTING------------------")
+        print("------------------------------------------------\n")
+        for db_name, db_handler in self.db_handlers.items():
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(where) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_WHERE][db_name][count] = measure_function_time(lambda: db_handler.where_select(count))
+                print()
+
+    def test_select_join_time(self) -> None:
+        print("------------------------------------------------")
+        print("----------------SELECT JOIN TESTING------------------")
+        print("------------------------------------------------\n")
+        for db_name, db_handler in self.db_handlers.items():
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(where) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_JOIN][db_name][count] = measure_function_time(lambda: db_handler.join_select(count))
+                print()
+
+    def test_select_where_and_order_by_time(self) -> None:
+        print("------------------------------------------------")
+        print("----------------SELECT WHERE AND ORDER BY TESTING------------------")
+        print("------------------------------------------------\n")
+        for db_name, db_handler in self.db_handlers.items():
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(where) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_WHERE_ORDERBY][db_name][count] = measure_function_time(lambda: db_handler.where_and_order_by_select(count))
+                print()
+
+    def test_select_complicated_time(self) -> None:
+        print("------------------------------------------------")
+        print("----------------SELECT COMPLICATED TESTING------------------")
+        print("------------------------------------------------\n")
+        for db_name, db_handler in self.db_handlers.items():
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(where) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_COMPLICATED][db_name][count] = measure_function_time(lambda: db_handler.complicated_select(count))
+                print()
 
     def print(self) -> None:
         print(json.dumps(self.results))
+
+    def save_results(self) -> None:
+        file_operations = FileOperations()
+        file_operations.save_results_to_file(self.results)

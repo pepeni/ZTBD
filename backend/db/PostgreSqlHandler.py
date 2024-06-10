@@ -71,9 +71,7 @@ class PostgreSqlHandler(DbHandler):
             df = df.dropna(subset=df.columns[0])
             df = df.replace(np.nan, None)
 
-            for i, row in enumerate(df.itertuples(index=False)):
-                if i > 3000:
-                    break
+            for row in df.itertuples(index=False):
                 cursor.execute(insert_query, row)
             self.connection.commit()
 

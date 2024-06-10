@@ -31,7 +31,6 @@ class MongoHandler(DbHandler):
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
             result = collection.insert_many(self.all_data.head(count).to_dict(orient='records'))
-            print(f"Inserted {len(result.inserted_ids)} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
@@ -41,7 +40,6 @@ class MongoHandler(DbHandler):
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
             result = collection.insert_many(self.all_data.to_dict(orient='records'))
-            print(f"Inserted {len(result.inserted_ids)} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
@@ -54,7 +52,6 @@ class MongoHandler(DbHandler):
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
             result = collection.update_many(mongo_filter, mongo_updater)
-            print(f"Updated {result.modified_count} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
@@ -64,7 +61,6 @@ class MongoHandler(DbHandler):
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
             result = collection.delete_many({"id": {"$in": self.all_data.head(count)[CrimeColumns.ID.value].to_list()}})
-            print(f"Deleted {result.deleted_count} records")
         except PyMongoError as e:
             print(f"Error: {e}")
         pass
@@ -75,7 +71,6 @@ class MongoHandler(DbHandler):
             db = client[self.DB_NAME]
             collection = db[self.COLLECTION_NAME]
             result = collection.delete_many({})
-            print(f"Removed {result.deleted_count} records")
         except PyMongoError as e:
             print(f"Error: {e}")
 
