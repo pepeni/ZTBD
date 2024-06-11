@@ -190,6 +190,15 @@ class MsSqlHandler(DbHandler):
             ORDER BY v.VICT_AGE;
             """)
 
+    def complicated_with_aggregation_select(self, count: int) -> None:
+        self.select_template(f"""
+            SELECT TOP({count}) a.area_name, AVG(v.vict_age) as avg_age
+            FROM CrimeRegister c
+            JOIN Area a ON a.AREA_ID = c.AREA_ID
+            JOIN Victim v ON v.VICTIM_ID = c.VICTIM_ID
+            GROUP BY a.AREA_NAME;
+        """)
+
     def select_template(self, select_text: str) -> None:
         try:
             with odbc.connect(self.connection_string) as conn:

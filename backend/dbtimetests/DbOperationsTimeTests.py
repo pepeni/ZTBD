@@ -27,6 +27,7 @@ class DbOperationsTimeTests:
     SELECT_JOIN = "SELECT_JOIN"
     SELECT_WHERE_ORDERBY = "SELECT_WHERE_ORDERBY"
     SELECT_COMPLICATED = "SELECT_COMPLICATED"
+    SELECT_COMPLICATED_AGGREGATION = "SELECT_COMPLICATED_AGGREGATION"
 
     MONGO = "MONGO"
     CASSANDRA = "CASSANDRA"
@@ -85,6 +86,12 @@ class DbOperationsTimeTests:
                 self.MS_SQL: {}
             },
             self.SELECT_COMPLICATED: {
+                self.MONGO: {},
+                self.CASSANDRA: {},
+                self.POSTGRES: {},
+                self.MS_SQL: {}
+            },
+            self.SELECT_COMPLICATED_AGGREGATION: {
                 self.MONGO: {},
                 self.CASSANDRA: {},
                 self.POSTGRES: {},
@@ -185,6 +192,18 @@ class DbOperationsTimeTests:
                 db_handler.delete_all()
                 db_handler.insert(Config.DB_SIZE_SELECT)
                 self.results[self.SELECT_COMPLICATED][db_name][count] = measure_function_time(lambda: db_handler.complicated_select(count))
+                print()
+
+    def test_select_complicated_aggregation_time(self) -> None:
+        print("------------------------------------------------")
+        print("----------------SELECT COMPLICATED TESTING------------------")
+        print("------------------------------------------------\n")
+        for db_name, db_handler in self.db_handlers.items():
+            for count in Config.RECORD_TO_SELECT:
+                print(f"Selecting(where) TOP({count}) records in {db_name}")
+                db_handler.delete_all()
+                db_handler.insert(Config.DB_SIZE_SELECT)
+                self.results[self.SELECT_COMPLICATED_AGGREGATION][db_name][count] = measure_function_time(lambda: db_handler.complicated_with_aggregation_select(count))
                 print()
 
     def print(self) -> None:
