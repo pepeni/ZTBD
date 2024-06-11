@@ -1,36 +1,62 @@
+
+
 crimeRegister = '''
     CREATE TABLE IF NOT EXISTS ztbd.CrimeRegister (
     ID int,
     AREA_ID int,
+    AREA_NAME text,
     CRIME_ID int,
-    VICTIM_ID int,
-    PERMIS_ID int,
+    CRIME_DESCRIPTION text,
+    VICT_AGE int,
+    VICT_SEX text,
+    VICT_DESCENT text,
+    PREMIS_ID int,
+    PREMIS_DESC text,
     WEAPON_ID int,
-    STATUS_ID int,
-    DATE_OCC timestamp,
+    WEAPON_DESC text,
+    STATUS_ID text,
+    STATUS_DESC text,
+    DATE_OCC text,
+    LOCATION text,
+    LAT double,
+    LON double,
+    PRIMARY KEY (ID)
+)
+'''
+
+insert_query_crime_register = """
+        INSERT INTO CrimeRegister (ID, AREA_ID, AREA_NAME, CRIME_ID, CRIME_DESCRIPTION, VICT_AGE, VICT_SEX, VICT_DESCENT, PREMIS_ID, PREMIS_DESC, WEAPON_ID, WEAPON_DESC, STATUS_ID, STATUS_DESC, DATE_OCC, LOCATION, LAT, LON)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+
+orderBySelectTable = '''
+    CREATE TABLE IF NOT EXISTS ztbd.OrderBySelectTable (
+    ID int,
+    AREA_ID int,
+    AREA_NAME text,
+    CRIME_ID int,
+    CRIME_DESCRIPTION text,
+    VICT_AGE int,
+    VICT_SEX text,
+    VICT_DESCENT text,
+    PREMIS_ID int,
+    PREMIS_DESC text,
+    WEAPON_ID int,
+    WEAPON_DESC text,
+    STATUS_ID text,
+    STATUS_DESC text,
+    DATE_OCC text,
     LOCATION text,
     LAT double,
     LON double,
     PRIMARY KEY (ID, DATE_OCC)
-)
+) WITH CLUSTERING ORDER BY (DATE_OCC DESC);
 '''
 
-joinSelectTable = '''
-    CREATE TABLE IF NOT EXISTS ztbd.JoinSelectTable (
-    STATUS_DESC text PRIMARY KEY,
-    ID int,
-    AREA_ID int,
-    CRIME_ID int,
-    VICTIM_ID int,
-    PERMIS_ID int,
-    WEAPON_ID int,
-    STATUS_ID int,
-    DATE_OCC timestamp,
-    LOCATION text,
-    LAT double,
-    LON double
-)
-'''
+insert_query_order_by_select = """
+        INSERT INTO OrderBySelectTable (ID, AREA_ID, AREA_NAME, CRIME_ID, CRIME_DESCRIPTION, VICT_AGE, VICT_SEX, VICT_DESCENT, PREMIS_ID, PREMIS_DESC, WEAPON_ID, WEAPON_DESC, STATUS_ID, STATUS_DESC, DATE_OCC, LOCATION, LAT, LON)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
 
 complicatedSelectTable = '''
     CREATE TABLE IF NOT EXISTS ztbd.ComplicatedSelectTable (
@@ -38,18 +64,25 @@ complicatedSelectTable = '''
     AREA_ID int,
     AREA_NAME text,
     CRIME_ID int,
-    VICTIM_ID int,
+    CRIME_DESCRIPTION text,
     VICT_AGE int,
     VICT_SEX text,
     VICT_DESCENT text,
-    PERMIS_ID int,
+    PREMIS_ID int,
+    PREMIS_DESC text,
     WEAPON_ID int,
     WEAPON_DESC text,
-    STATUS_ID int,
-    DATE_OCC timestamp,
+    STATUS_ID text,
+    STATUS_DESC text,
+    DATE_OCC text,
     LOCATION text,
     LAT double,
     LON double,
-    PRIMARY KEY ((AREA_NAME, WEAPON_DESC), ID)
-)
+    PRIMARY KEY (ID, VICT_AGE)
+) WITH CLUSTERING ORDER BY (VICT_AGE DESC);
 '''
+
+insert_query_complicated_select = """
+        INSERT INTO ComplicatedSelectTable (ID, AREA_ID, AREA_NAME, CRIME_ID, CRIME_DESCRIPTION, VICT_AGE, VICT_SEX, VICT_DESCENT, PREMIS_ID, PREMIS_DESC, WEAPON_ID, WEAPON_DESC, STATUS_ID, STATUS_DESC, DATE_OCC, LOCATION, LAT, LON)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
