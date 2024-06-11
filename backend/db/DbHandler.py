@@ -54,3 +54,7 @@ class DbHandler(ABC):
     @abstractmethod
     def complicated_select(self, count: int) -> None:
         pass
+
+    @abstractmethod
+    def complicated_with_aggregation_select(self, count: int) -> None:
+        pass

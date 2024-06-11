@@ -188,3 +188,13 @@ class PostgreSqlHandler(DbHandler):
             ORDER BY v.vict_age
             LIMIT {count};
         """)
+
+    def complicated_with_aggregation_select(self, count: int) -> None:
+        self.select_template(f"""
+            SELECT a.area_name, AVG(v.vict_age) as avg_age
+            FROM crimeregister c 
+            JOIN area a ON a.area_id = c.area_id 
+            JOIN victim v ON v.victim_id = c.victim_id
+            GROUP BY a.area_name
+            LIMIT {count};
+        """)
