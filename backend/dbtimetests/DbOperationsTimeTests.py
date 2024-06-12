@@ -196,7 +196,7 @@ class DbOperationsTimeTests:
 
     def test_select_complicated_aggregation_time(self) -> None:
         print("------------------------------------------------")
-        print("----------------SELECT COMPLICATED TESTING------------------")
+        print("----------------SELECT COMPLICATED AGGREAGTE TESTING------------------")
         print("------------------------------------------------\n")
         for db_name, db_handler in self.db_handlers.items():
             for count in Config.RECORD_TO_SELECT:
